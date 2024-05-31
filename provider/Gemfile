@@ -1,0 +1,12 @@
+# frozen_string_literal: true
+
+source 'https://rubygems.org'
+
+gem 'pact'
+gem 'pact-provider-proxy'
+gem 'pact-provider-verifier'
+gem 'rack', '>3.0'
+gem 'rspec'
+gem 'rubocop', group: 'development', require: false
+gem 'sinatra'
+gem 'sqlite3'

@@ -1,0 +1,72 @@
+{
+  "consumer": {
+    "name": "Zoo App"
+  },
+  "provider": {
+    "name": "Animal Service"
+  },
+  "interactions": [
+    {
+      "description": "a request for an alligator",
+      "providerState": "an alligator exists",
+      "request": {
+        "method": "get",
+        "path": "/alligator/1",
+        "query": ""
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "name": "Any name",
+          "age": 36
+        },
+        "matchingRules": {
+          "$.body": {
+            "match": "type"
+          }
+        }
+      }
+    },
+    {
+      "description": "a request for an alligator",
+      "providerState": "an alligator is not found",
+      "request": {
+        "method": "get",
+        "path": "/alligator/2",
+        "query": ""
+      },
+      "response": {
+        "status": 404,
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "description": "a request for a crocodile",
+      "providerState": "an error occurs while retrieving a crocodile",
+      "request": {
+        "method": "get",
+        "path": "/crocodile",
+        "query": ""
+      },
+      "response": {
+        "status": 500,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "message": "An error occurred!"
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "2.0.0"
+    }
+  }
+}

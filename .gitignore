@@ -1,0 +1,9 @@
+.DS_Store
+**/*.log
+.idea
+
+/log/
+/consumer/log/
+/consumer/.DS_Store
+/provider/.DS_Store
+/provider/log/
