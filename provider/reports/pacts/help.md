@@ -24,7 +24,7 @@
 
 The following changes have been made since the previous distinct version of this pact, and may be responsible for verification failure:
 
-# Diff between versions 1.2.107 and 1.0 of the pact between Zoo App and Animal Service
+# Diff between versions 1.2.107 and 1.1 of the pact between Zoo App and Animal Service
 
 The following changes were made about 22 hours ago (Thu 30 May 2024, 9:21pm +00:00)
 
@@ -62,8 +62,8 @@ The following changes were made about 22 hours ago (Thu 30 May 2024, 9:21pm +00:
 
 pact-version:
   title: Pact
-  name: Pact between Zoo App (1.0) and Animal Service
-  href: http://localhost:9292/pacts/provider/Animal%20Service/consumer/Zoo%20App/version/1.0
+  name: Pact between Zoo App (1.1) and Animal Service
+  href: http://localhost:9292/pacts/provider/Animal%20Service/consumer/Zoo%20App/version/1.1
 comparison-pact-version:
   title: Pact
   name: Pact between Zoo App (1.2.107) and Animal Service
