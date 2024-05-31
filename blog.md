@@ -105,3 +105,90 @@ Let's see how to implement the Provider and ensure that it satisfies the contrac
 
 # The Provider
 
+The provider in our example is a Sinatra app that answers to GET /alligator and /crocodile. It's expects an id by which to retrieve the data from a local database it maintains.
+Nothing special, nor any special code to accommodate Pact in any way.
+
+This is an example of the GET /alligator:
+
+```ruby
+  get '/alligator/:id' do
+    content_type :json
+
+    db = SQLite3::Database.new('./test_data.sqlite3')
+    query = 'SELECT * FROM animals WHERE id = ?;'
+    id = params[:id].to_i
+    alligator = db.get_first_row query, id
+    if alligator
+      alligator = Alligator.new(name: alligator[1], age: alligator[2])
+      alligator.to_json
+    else
+      error 404
+    end
+  end
+```
+
+As you can see, it returns its shaped version of the Alligator object to contain only name and age, as per the Pact. Again as per spec, it returns an empty body and 404 if the alligator was not found.
+So how does the contract testing work for the cases when we have an alligator and when it's not found? This is when...
+
+# Pact Magic Happens
+
+When we run 'rake pact:verify', Pact runs interference, and sets up states to simulate the different use cases we're intersted in; in our case, one when the alligator exists, and the other when it does not.
+
+Here are the two states in Pact syntax:
+
+```ruby
+  provider_state 'an alligator exists' do
+    set_up do
+      add_alligator(1)
+    end
+
+    tear_down do
+    end
+  end
+
+  provider_state 'an alligator is not found' do
+    no_op
+  end
+```
+
+The states 'an alligator exists' and 'an alligator is not found' coincide with the values used in the Consumer's rSpec file described above.
+In the first case, we add an alligator with the id 1 to the database, in the second one, none is added. The data either present or missing in the database will control whether we return an Alligator or a 404.
+
+So, simply by using Pact, we're able to change the behaviour of the server without changing its implementation. Let's call it "just in time mocking".
+
+# Placing the contract to be used by both Consumer and Producer
+
+In order for the whole thing to work, we need to run a Pact Broker. In this article, we use one in a Docker image, that you can reference in the source code.
+
+Once the Consumer is happy with the contract, it publishes it to the Broker thus:
+```ruby
+path = "/pacts/provider/Animal%20Service/consumer/Zoo%20App/version/#{CONTRACT_VERSION}"
+req = Net::HTTP::Put.new(path, { 'Content-Type' => 'application/json' })
+req.body = IO.read('./spec/pacts/zoo_app-animal_service.json')
+response = Net::HTTP.new('localhost', 9292).start { |http| http.request(req) }
+```
+
+Giving it an ID (CONTRACT_VERSION), it posts the data to the Broker, in our instance it's localhost:9292.
+
+The Provider will access this location when `rake pact:verify` is called, and the Broker will fail the verification if the contract is not adhered to.
+
+# What's the workflow?
+
+- Consumer and Publisher teams sit and work together to define the structure and semantics of the data that they intend to exchange.
+- Consumer codifies this into an integration test incorporating the Pact framework, which creates a Contract
+- Consumer publishes the Contract to the Broker
+- Consumer's CI makes sure pact:verify works with each merge
+- Provider's CI runs pact:verify works with each merge
+
+This cycle ensures that both Consumer and Provider did not break the Contract due to:
+- Different expectations from the Consumer
+- Different responses from the Provider
+
+Thus, both teams will be well poised for integration tests when the time comes (in the pyramid: unit -> contract -> integration and beyond).
+
+Access the code accompanying this article on my [github](https://github.com/ihassin/ihassin-pact-ruby-example).
+
+Read all about it at the [Pact website](https://docs.pact.io/implementation_guides/ruby/readme).
+
+Happy coding!
+
